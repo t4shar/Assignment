@@ -1,6 +1,12 @@
 const express = require('express');
+var bcrypt = require("bcryptjs");
+const { body, validationResult } = require("express-validator");
 const router = express.Router();
 const neo4j_calls = require('./../neo4j_calls/neo4j_api');
+
+
+const JWT_TOKEN = "hisisbetter&farbetterthen&me";
+
 
 router.get('/getitems', async function (req,res) {
     try {
@@ -49,12 +55,17 @@ router.post('/additem' ,  async function(req,res){
 router.post('/login' , async function (req,res){
 
     try {
-         const result = await neo4j_calls.match(req.body);
-        if(result === false){
-            res.status(404).send("Wrong Credentials");
+    const result = await neo4j_calls.match(req.body);
+        if(result == true){
+            return res.status(200).send('No user exits');
+        }
+
+        const passcompare = await bcrypt.compare(result.password,req.body.password);
+        if(passcompare){
+            return res.status(200).send("login Success");
         }else{
-            res.status(200).send("Success");
-        }  
+            return res.status(400).send("Wrong Creadentials");
+        }
 
     } catch (error) {
         res.status(error)
@@ -64,38 +75,35 @@ router.post('/login' , async function (req,res){
 })
 
 
-router.post('/createuser' , async function (req,res){
-    try {
+router.post('/createuser' ,[
+    body("email", "Enter a valid Email").isEmail(),
+    body("password", "Enter a valid Password").isLength({ min: 5 }),
+    body("name", "Enter a valid name").isLength({ min: 3 }),
+] , async function (req,res){
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ valierror :'true',success : 'false', error: errors.array() });
+    }
 
-        const result = await neo4j_calls.create_user(req.body);
-        res.json(result);
-        // res.status(202).send("USER HAS CREATED SUCCESFULLY");
+    try {
+        // todo
+        // const salt = await bcrypt.genSalt(10);
+        // const securepassword = await bcrypt.hash(req.body.password, salt);
+        // console.log(securepassword);
+        const user = {
+            nmae : req.body.name,
+            email :req.body.email,
+            password :req.body.password
+        }
+
+        const result = await neo4j_calls.create_user(user);
+        // res.json(result);
+        res.status(200).json(result);
     } catch (error) {
         res.status(404).send(error);
     }
 })
 
-router.get('/neo4j_get', async function (req, res, next) {
-    try {
-        let result = await neo4j_calls.get_num_nodes();
-    console.log("RESULT IS", result)
-    res.status(200).send({ result })    //Can't send just a Number; encapsulate with {} or convert to String.     
-    return { result };
-    } catch (error) {
-        res.send(error);    
-    }
-    
-})
 
-router.post('/neo4j_post', async function (req, res, next) {
-    try {
-        let { name } = req.body;
-        let string = await neo4j_calls.create_user(name);
-        res.status(200).send("User named " + string + " created")
-        return 700000;
-    } catch (error) {
-        res.send(error);
-    }
-})
 
 module.exports = router;

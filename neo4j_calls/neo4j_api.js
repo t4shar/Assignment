@@ -1,5 +1,6 @@
 let neo4j = require('neo4j-driver');
 var uniqid = require('uniqid'); 
+var bcrypt = require("bcryptjs");
 let { creds } = require("./../config/credentials");
 let driver = neo4j.driver("bolt://34.200.250.123:7687", neo4j.auth.basic(creds.neo4jusername, creds.neo4jpw));
 
@@ -55,12 +56,10 @@ exports.match = async function(user){
     let session = driver.session();
     const result = await session.run(`MATCH (u:User {email : '${user.email}'} ) return u limit 1`)
     if(result.records.length === 0){
-        return false;
+        return true;
     }
-     var obj = result.records[0].get('u').properties
-    // console.log(obj);
-    if(obj.password === user.password) return true
-    return false;
+     return result.records[0].get('u').properties
+    
 }
 // Create a user almost done but we have to encrypt password to store in data base
 
@@ -70,7 +69,8 @@ exports.create_user = async function (user) {
         const res = await findbyemail(user.email);
         if( res === true ) return "User With the same Email is Already registered"
         const unique_id = uniqid();
-        await session.run(`CREATE (u:User {_id : '${unique_id}', name: '${user.name}', email: '${user.email}', password: '${user.password}'} ) return u`)
+        const result = await session.run(`CREATE (u:User {_id : '${unique_id}', name: '${user.name}', email: '${user.email}', password: '${user.password}'} ) return u`)
+        console.log(result);
         return "User Has Been Created"
         
     }
