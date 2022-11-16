@@ -1,6 +1,5 @@
 let neo4j = require('neo4j-driver');
 var uniqid = require('uniqid'); 
-var bcrypt = require("bcryptjs");
 let { creds } = require("./../config/credentials");
 let driver = neo4j.driver("bolt://34.200.250.123:7687", neo4j.auth.basic(creds.neo4jusername, creds.neo4jpw));
 
@@ -32,10 +31,16 @@ exports.addItem = async(item) =>{
 
 // Update the existing item in database
 
-exports.FindbyIDandUpdate = async function (id,item){
+exports.findByIdAndUpdate = async function (id,item){
+    console.log("INT HE KSKSK")
     let session =driver.session();
-    const result = await session.run(`MATCH (i:Item {_id : '${id}'}) SET i.name= '${item.name}', i.description= '${item.description}', i.category= '${item.category}  , i.price:'${item.price}' return i`)
-    return result.records[0].get('i').properties
+    try {
+        
+        const result = await session.run(`MATCH (i:Item {_id : '${id}'}) SET i.name= '${item.name}', i.description= '${item.description}', i.category= '${item.category}' , i.price ='${item.price}' return i`)
+        return result.records[0].get('i').properties
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 
@@ -52,13 +57,10 @@ const findbyemail = async(email)=>{
 // to do is authentication jwt encryption and express validator to validate email
 // to do is to find by id IF user exits
 
-exports.match = async function(user){
+exports.match = async function(email){
     let session = driver.session();
-    const result = await session.run(`MATCH (u:User {email : '${user.email}'} ) return u limit 1`)
-    if(result.records.length === 0){
-        return true;
-    }
-     return result.records[0].get('u').properties
+    const result = await session.run(`MATCH (u:User {email : '${email}'} ) return u limit 1`)
+    return result.records[0].get('u').properties
     
 }
 // Create a user almost done but we have to encrypt password to store in data base
@@ -70,9 +72,8 @@ exports.create_user = async function (user) {
         if( res === true ) return "User With the same Email is Already registered"
         const unique_id = uniqid();
         const result = await session.run(`CREATE (u:User {_id : '${unique_id}', name: '${user.name}', email: '${user.email}', password: '${user.password}'} ) return u`)
-        console.log(result);
-        return "User Has Been Created"
-        
+        console.log(result.records[0].get('u').properties);
+        return "User Has Been Created"   
     }
     catch (err) {
         console.error(err);
