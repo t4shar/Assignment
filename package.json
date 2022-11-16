@@ -1,7 +1,12 @@
 {
   "dependencies": {
+    "-": "^0.0.1",
+    "bcrypt": "^5.1.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "neo4j-driver": "^4.0.2"
+    "jsonwebtoken": "^8.5.1",
+    "neo4j-driver": "^4.0.2",
+    "npm": "^9.1.1",
+    "uniqid": "^5.4.0"
   }
 }

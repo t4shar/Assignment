@@ -8,9 +8,6 @@ app.use(cors())
 
 let test_api = require('./routes/test_api');
 
-//Sending a GET to localhost:8080/dummy should return this
-app.get('/dummy', (req, res) => res.send('Response from Route of the Express Server!!'))
-
 app.listen(8080);
 
 app.use(function (req, res, next) {
