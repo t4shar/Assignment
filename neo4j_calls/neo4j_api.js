@@ -25,7 +25,7 @@ exports.addItem = async(id,item) =>{
     let session = driver.session();
     console.log(item);
     const unique_id = uniqid();
-    const result = await session.run(`CREATE (i:Item { u_id : '${id}', _id : '${unique_id}', name: '${item.name}', description: '${item.description}', category: '${item.category}',price : '${item.price}' } ) return i`)
+    const result = await session.run(`CREATE (i:Item { _id : '${id}', name: '${item.name}', description: '${item.description}', category: '${item.category}',price : '${item.price}' } ) return i`)
     // console.log(result);
     return result.records[0].get('i').properties;
     // return {success : true , "id" : unique_id};
