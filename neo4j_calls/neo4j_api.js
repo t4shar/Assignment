@@ -1,7 +1,7 @@
 let neo4j = require('neo4j-driver');
 var uniqid = require('uniqid'); 
 let { creds } = require("./../config/credentials");
-let driver = neo4j.driver("bolt://34.200.250.123:7687", neo4j.auth.basic(creds.neo4jusername, creds.neo4jpw));
+let driver = neo4j.driver("bolt://44.202.216.19:7687", neo4j.auth.basic(creds.neo4jusername, creds.neo4jpw));
 
 
 // find by id function 
@@ -21,12 +21,14 @@ exports.getItem = async(node) =>{
 }
 
 // to add a item in data base  
-exports.addItem = async(item) =>{
+exports.addItem = async(id,item) =>{
     let session = driver.session();
     console.log(item);
-    const result = await session.run(`CREATE (i:Item {_id : '${item.id}', name: '${item.name}', description: '${item.description}', category: '${item.category}',price : '${item.price}' } ) return i`)
+    const unique_id = uniqid();
+    const result = await session.run(`CREATE (i:Item { u_id : '${id}', _id : '${unique_id}', name: '${item.name}', description: '${item.description}', category: '${item.category}',price : '${item.price}' } ) return i`)
     // console.log(result);
-    return result.records[0].get('i').properties
+    return result.records[0].get('i').properties;
+    // return {success : true , "id" : unique_id};
 }
 
 // Update the existing item in database
@@ -35,7 +37,6 @@ exports.findByIdAndUpdate = async function (id,item){
     console.log("INT HE KSKSK")
     let session =driver.session();
     try {
-        
         const result = await session.run(`MATCH (i:Item {_id : '${id}'}) SET i.name= '${item.name}', i.description= '${item.description}', i.category= '${item.category}' , i.price ='${item.price}' return i`)
         return result.records[0].get('i').properties
     } catch (error) {
@@ -72,8 +73,8 @@ exports.create_user = async function (user) {
         if( res === true ) return "User With the same Email is Already registered"
         const unique_id = uniqid();
         const result = await session.run(`CREATE (u:User {_id : '${unique_id}', name: '${user.name}', email: '${user.email}', password: '${user.password}'} ) return u`)
-        console.log(result.records[0].get('u').properties);
-        return "User Has Been Created"   
+        // console.log(result.records[0].get('u').properties);
+        return { success : true , id : unique_id}   
     }
     catch (err) {
         console.error(err);

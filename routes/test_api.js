@@ -5,49 +5,7 @@ const router = express.Router();
 const neo4j_calls = require('./../neo4j_calls/neo4j_api');
 
 
-
-router.get('/getitems', async function (req, res) {
-    try {
-        const result = await neo4j_calls.getItem()
-        res.status(200).json(result);
-    } catch (error) {
-        res.status(500).send("Some Eroor Ocured");
-    }
-
-
-})
-
-
-// router.put('/update/:id' , async function(req,res){
-//     const result = await neo4j_calls.FindbyIDandUpdate(req.params.id , req.body);
-//     res.json(result);
-// })
-
-
-// update the item api call
-
-router.put('/update/:id', async function (req, res) {
-    console.log("hello")
-    try {
-        const result = await neo4j_calls.findByIdAndUpdate(req.params.id, req.body)
-        res.json(result)
-    } catch (error) {
-        console.log(error);
-    }
-})
-
-router.post('/additem', async function (req, res) {
-    try {
-        console.log("I am in call");
-        const result = await neo4j_calls.addItem(req.body);
-        res.json(result);
-
-    } catch (error) {
-        res.status(500).send("Some Error Occured");
-    }
-
-})
-
+// api route test_api/login
 
 router.post('/login', [
     body("email", "Enter a valid Email").isEmail(),
@@ -66,18 +24,18 @@ router.post('/login', [
 
         const result = await neo4j_calls.match(email);
         if (result === {} ) {
-            return res.status(400).send('No user exits');
+            return res.status(400).json({ success : false  , mesaage :"No user with this email is registered"})
         }
-        console.log(password);
-        console.log(result.password);
+        // console.log(password);
+        // console.log(result.password);
         const pascompare = await bcrypt.compare(password,result.password);
         if(pascompare){
-            res.json({success : 'true'})
+            res.json({success : 'true' , id : result._id})
         }else{
             res.status(400).json({success : 'false' , message : 'wrong creds'});
         }
         
-        res.status(400).send("Unauthorized Access");
+        res.status(400).json({success : 'false' , mesaage : "Unauthorized Access"});
     } catch (error) {
         res.status(error)
     }
@@ -116,4 +74,49 @@ router.post('/createuser', [
 
 
 
+router.get('/getitems', async function (req, res) {
+    try {
+        const result = await neo4j_calls.getItem()
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).send("Some Eroor Ocured");
+    }
+    
+    
+})
+
+
+// router.put('/update/:id' , async function(req,res){
+    //     const result = await neo4j_calls.FindbyIDandUpdate(req.params.id , req.body);
+    //     res.json(result);
+    // })
+    
+    
+    // update the item api call
+    
+    router.put('/update/:id', async function (req, res) {
+        console.log("hello")
+        try {
+            const result = await neo4j_calls.findByIdAndUpdate(req.params.id, req.body)
+            res.json(result)
+        } catch (error) {
+            console.log(error);
+        }
+    })
+    
+    router.post('/additem/:id', async function (req, res) {
+        try {
+            console.log("I am in call");
+            const result = await neo4j_calls.addItem(req.params.id, req.body);
+            res.json(result);
+            
+        } catch (error) {
+            res.status(500).send("Some Error Occured");
+        }
+        
+    })
+    
+    
+    
+    
 module.exports = router;
