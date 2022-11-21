@@ -1,4 +1,4 @@
-# Neo4j + Express.js Boilerplate Template
+# Neo4j + Express.js 
 Boilerplate code for quickly getting an Express.js server up and running with some template code for an extendable API that incorporates Neo4j. Using the Neo4j driver provided by Neo4j, this slim repository can be expanded upon to build out a large backend API infrastructure that is linked to a graph database. 
 
 ## Requirements
@@ -8,7 +8,7 @@ Boilerplate code for quickly getting an Express.js server up and running with so
 - A positive mindset. You got this!
 
 ## Installation and Run Instructions
-1. In 1 terminal window run ``git clone https://github.com/dkazenoff/neo4j-express-boilerplate.git`` and then ``npm install``
+1. In 1 terminal window run ``git clone https://github.com/t4shar/Assignment`` and then ``npm install``
 2. In the same window, run ``node app.js`` to launch the express server and backend JS API
 3. In terminal window 2, navigate to inside the install directory location of Neo4j and start the server up. Running ``bin/neo4j console`` in this terminal window is one method of launching the server.
 4. The Full neo4j-express server is now ready to use! Run test GET/POST API calls with Postman ("localhost:8080/test_api/") to prove you're receiving the expected demo-responses, and that your local neo4j server is getting populated correctly. See [Neo4j Documentation](https://neo4j.com/docs/) for more information
